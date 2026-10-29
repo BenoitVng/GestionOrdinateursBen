@@ -1,0 +1,62 @@
+
+@page "/login"
+@using System.Net.Http.Json
+@using Blazored.SessionStorage
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
+@inject ISessionStorageService SessionStorage
+
+<h3>Connexion</h3>
+
+<p>Login :</p>
+<input @bind="login" placeholder="Entre ton login" />
+
+<button @onclick="Connecter">Se connecter</button>
+
+<p>@message</p>
+
+@code {
+    private string login = "";
+    private string message = "";
+
+    private async Task Connecter()
+    {
+        if (string.IsNullOrWhiteSpace(login)) // on vérifie si le login est vide
+        {
+            message = "Entrez un login";
+            return;
+        }
+        var client = HttpClientFactory.CreateClient("AuthentificationApi");
+        try
+        {
+            var response = await client.PostAsJsonAsync("auth/login", new { Login = login });  // Appel de l'API d'authentification
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                message = "Cet utilisateur n'existe pas"; // gestion des erreurs (utilisateur inexistant)
+                return;
+            }
+            if (!response.IsSuccessStatusCode)
+            {
+                message = "Erreur lors de la connexion"; // gestion des erreurs (erreur de communication avec l'API)
+                return;
+            }
+            var resultat = await response.Content.ReadFromJsonAsync<LoginResponse>(); 
+            if (resultat == null || string.IsNullOrEmpty(resultat.Token)) // gestion des erreurs 
+            {
+                message = "Erreur : token introuvable"; // gestion des erreurs (token introuvable)
+                return;
+            }
+            await SessionStorage.SetItemAsync("token", resultat.Token);
+            Navigation.NavigateTo("/");
+        }
+        catch (HttpRequestException)
+        {
+            message = "Impossible de contacter l'API";
+        }
+    }
+
+    public class LoginResponse
+    {
+        public string Token { get; set; } = "";
+    }
+}
