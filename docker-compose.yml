@@ -41,10 +41,10 @@ services:
       dockerfile: AuthentificationApi/Dockerfile
     container_name: authentification_api
     ports:
-      - "5157:5157"
+      - "5010:5010"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5157
+      ASPNETCORE_URLS: http://+:5010
     depends_on:
       - postgres
       - keycloak
@@ -58,10 +58,10 @@ services:
       dockerfile: GestionOrdinateurs.API/Dockerfile
     container_name: gestionordinateurs_api
     ports:
-      - "5158:5158"   
+      - "5010:5010"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5158  
+      ASPNETCORE_URLS: http://+:5010
     depends_on:
       - postgres
       - keycloak
@@ -75,10 +75,10 @@ services:
       dockerfile: GestionOrdinateurs.Gateway/Dockerfile
     container_name: gestionordinateurs_gateway
     ports:
-      - "5159:5159"       
+      - "5102:5102"     
     environment:
       ASPNETCORE_ENVIRONMENT: Development 
-      ASPNETCORE_URLS: http://+:5159
+      ASPNETCORE_URLS: http://+:5102
     depends_on:
       - authentification-api
       - gestionordinateurs-api
@@ -92,10 +92,17 @@ services:
       dockerfile: GestionOrdinateurs.Client/Dockerfile
     container_name: gestionordinateurs_client
     ports:
-      - "8080:80"  
+      - "5000:5000"
     depends_on:
       - gestionordinateurs-gateway
     networks:
       - appnet    
 
-                    
+volumes:
+  postgres_data:
+  keycloak_data:
+
+
+networks:
+  appnet:
+    driver: bridge

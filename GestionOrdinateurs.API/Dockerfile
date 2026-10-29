@@ -20,7 +20,5 @@ WORKDIR /app
 COPY --from=build /app/out ./
 
 ENV ASPNETCORE_ENVIRONMENT=Development
-ENV ASPNETCORE_URLS=http://+:5086
-EXPOSE 5086
 
 ENTRYPOINT ["dotnet", "GestionOrdinateurs.API.dll"]
