@@ -15,7 +15,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        policy.WithOrigins("http://localhost:5103")
+        //front lancé en local (dotnet run) ; 5000 : front servi par nginx sous Docker
+        policy.WithOrigins("http://localhost:5103", "http://localhost:5000")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
