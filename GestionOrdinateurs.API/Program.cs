@@ -57,16 +57,19 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
+    // TP6 : validation des tokens émis par Keycloak (clés publiques récupérées via le réseau Docker)
+    options.MetadataAddress = builder.Configuration["Keycloak:MetadataAddress"];
     options.RequireHttpsMetadata = false;
+    options.MapInboundClaims = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Keycloak:ValidIssuer"],
         ValidateAudience = false,
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        NameClaimType = "preferred_username",
+        RoleClaimType = "roles" // [Authorize(Roles = "Admin")] lit ce claim
     };
     options.Events = new JwtBearerEvents
     {
@@ -77,7 +80,7 @@ builder.Services.AddAuthentication(options =>
         },
         OnAuthenticationFailed = context =>
         {
-            Console.WriteLine("Token Invalide");
+            Console.WriteLine($"Token Invalide : {context.Exception.Message}");
             return Task.CompletedTask;
         }
     };

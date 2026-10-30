@@ -9,6 +9,10 @@ builder.Services.AddHttpClient("GestionOrdinateurs", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["GestionOrdinateursApi:BaseUrl"]!);
 });
+builder.Services.AddHttpClient("Keycloak", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Keycloak:TokenUrl"]!);
+});
 
 
 builder.Services.AddCors(options =>
